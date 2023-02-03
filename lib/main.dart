@@ -6,30 +6,20 @@ import 'package:nomaislaoh/pages/HistoricPage.dart';
 import 'package:nomaislaoh/pages/TableauScore.dart';
 import 'package:nomaislaoh/pages/StatPage.dart';
 //import 'boxes.dart';
-import 'model/Partie.dart';
 import 'pages/addJoueurPage.dart';
 import 'model/Joueur.dart';
 
-int numPartie = 0;
+String partie = 'p1';
 
-int currentIndex = 2;
+int currentIndex = 0;
 
-Joueur j1 = Joueur('', [], [], [], [255, 63, 245, 255]);
-Joueur j2 = Joueur('', [], [], [], [255, 63, 245, 255]);
-Joueur j3 = Joueur('', [], [], [], [255, 63, 245, 255]);
-Joueur j4 = Joueur('', [], [], [], [255, 63, 245, 255]);
-
-List<Joueur> l = [j1, j2, j3, j4];
 
 Future main() async {
 
   await Hive.initFlutter();
-  Hive.registerAdapter(PartieAdapter());
   Hive.registerAdapter(JoueurAdapter());
-  await Hive.openBox<Partie>('Parties');
+  await Hive.openBox<Joueur>('partie1');
   //await Hive.deleteFromDisk();
-  var joueur = Joueur('timothé', [], [], [], []);
-  addPartie('p1',[joueur]);
 
   runApp(const MaterialApp(home: MyApp()));
 }
@@ -49,15 +39,29 @@ class _MyAppState extends State<MyApp> {
     const Color colorbutton = Colors.white;
 
     return Scaffold(
-      body: ValueListenableBuilder<Box<Partie>>(
+      body: ValueListenableBuilder<Box<Joueur>>(
           valueListenable: Boxes.getparties().listenable(),
           builder: (context, box, _) {
-            final listePartie = box.values.toList().cast<Partie>();
+            final listeJoueur = box.values.toList().cast<Joueur>();
+            if(listeJoueur.isEmpty){
+              addJoueur('', partie, [], [], [], []);
+              addJoueur('', partie, [], [], [], []);
+              addJoueur('', partie, [], [], [], []);
+              addJoueur('', partie, [], [], [], []);
+            }
+            //on prend uniquement les joueurs qui sont de la partie selectionnée
+            List<Joueur> listeCourante = [];
+            for (int i = 0;i<listeJoueur.length;i++){
+              if (listeJoueur[i].partie == partie){
+                listeCourante = listeCourante + [listeJoueur[i]];
+              }
+            }
+
             final pages = [
-              addJoueurPage(listePartie.first,context),
-              TableauScore(context),
-              HistoricPage(context),
-              statisticsPage(numPartie),
+              addJoueurPage(listeCourante,context),
+              TableauScore(listeCourante,context),
+              HistoricPage(listeCourante,context),
+              statisticsPage(listeCourante),
             ];
             return pages[currentIndex];
           }),

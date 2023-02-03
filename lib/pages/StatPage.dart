@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import '../main.dart';
 import '../model/Joueur.dart';
 
-Widget statisticsPage(numPartie) {
+Widget statisticsPage(l) {
   return Scaffold(
       appBar: AppBar(
         title: const Text('Scores'),

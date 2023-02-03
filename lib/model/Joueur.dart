@@ -14,14 +14,10 @@ class Joueur extends HiveObject{
   late List<int> position;
   @HiveField(4)
   late List<int> color;
+  @HiveField(5)
+  late String partie;
 
-  Joueur(String nom,List<int> scores,List<bool> deutschs,List<int> position,List<int> color) {
-    this.nom = nom;
-    this.scores = scores;
-    this.deutschs = deutschs;
-    this.position = position;
-    this.color = color;
-  }
+  Joueur(this.nom,this.partie,this.scores,this.deutschs,this.position,this.color);
 
   int sommeScore() {
     int res = 0;

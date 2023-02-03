@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
-import 'model/Partie.dart';
+import 'model/Joueur.dart';
 
 class Boxes {
-  static Box<Partie> getparties()=>
-      Hive.box<Partie>('Parties');
+  static Box<Joueur> getparties()=>
+      Hive.box<Joueur>('partie1');
 }

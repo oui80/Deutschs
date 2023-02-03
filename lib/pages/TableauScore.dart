@@ -3,18 +3,18 @@ import '../Widgets/ScoreDialog.dart';
 import '../main.dart';
 import '../model/Joueur.dart';
 
-Widget TableauScore(BuildContext context) {
+Widget TableauScore(l,BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       title: const Text('TableauScore'),
     ),
-    body: tab(context),
+    body: tab(l,context),
     floatingActionButton: FloatingActionButton(
       heroTag: 'plus_score',
       onPressed: () => {
         showDialog(
           context: context,
-          builder: (context) => ScoreDialog(numPartie,context),
+          builder: (context) => ScoreDialog(l,context),
         ),
       },
       backgroundColor: Colors.blue,
@@ -23,8 +23,8 @@ Widget TableauScore(BuildContext context) {
   );
 }
 
-Widget tab(BuildContext context) {
-  var hauteur = 100.0;
+Widget tab(l,BuildContext context) {
+  var hauteur = 300.0;
   for (int i = 0; i < l[0].scores.length; i++) {
     hauteur = hauteur + 28.88;
   }
@@ -47,7 +47,7 @@ Widget tab(BuildContext context) {
                     border: Border.all(
                       color: Colors.black54,
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                    borderRadius: const BorderRadius.all(Radius.circular(10))),
                 width: 2,
               ),
             ]);

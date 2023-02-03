@@ -2,56 +2,18 @@ import 'package:flutter/material.dart';
 import '../boxes.dart';
 import '../main.dart';
 import '../model/Joueur.dart';
-import '../model/Partie.dart';
-import 'HistoricPage.dart';
 
-Widget addJoueurPage(Partie partie, context) {
+Widget addJoueurPage(List<Joueur> listeJoueur, context) {
 
-  void addJoueur(String name, List<int> scores, List<bool> deutschs,
-    List<int> position, List<int> color) {
-    print(partie.l);
+  Widget ListeJoueur(List<Joueur> l) {
 
-    String nom = partie.nom;
-
-    List<Joueur> tempList = partie.l;
-    tempList.add(Joueur(name, scores, deutschs, position, color));
-    partie.l = tempList;
-    partie.nom = nom;
-    partie.save();
-
-    final box = Boxes.getparties();
-    box.put(partie.id,partie);
-    print(box.values.toList().toString());
-
-    //print(partie.l);
-    //partie.save();
-  }
-
-  void editJoueur(Joueur j, int indexjoueur, String nom, List<int> scores, List<bool> deutschs,
-      List<int> position, List<int> color) {
-    j.nom = nom;
-    j.scores = scores;
-    j.deutschs = deutschs;
-    j.position = position;
-    j.color = color;
-
-    partie.l[indexjoueur] = j;
-    partie.save();
-    //editPartie(partie, l, nom);
-  }
-
-  void deleteJoueur(int index) {
-    partie.l.removeAt(index);
-  }
-
-  Widget ListeJoueur(Partie p) {
     return Expanded(
       child: SizedBox(
         //height: 200,
         width: MediaQuery.of(context).size.width,
         child: ListView.builder(
             shrinkWrap: true,
-            itemCount: p.l.length,
+            itemCount: l.length,
             itemBuilder: (context, index) {
               return Padding(
                   padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
@@ -71,34 +33,34 @@ Widget addJoueurPage(Partie partie, context) {
                                   elevation: 3,
                                   shadowColor: Colors.grey,
                                   child: TextField(
-                                    //cursorColor: Color.fromARGB(p.l[index].color[0],p.l[index].color[1],p.l[index].color[2],p.l[index].color[3]),
+                                    //cursorColor: Color.fromARGB(l[index].color[0],l[index].color[1],l[index].color[2],l[index].color[3]),
                                     cursorHeight: 20,
                                     textAlignVertical:
                                     TextAlignVertical.center,
                                     onChanged: (value) => {
                                       editJoueur(
-                                          p.l[index],
-                                          index,
+                                          l[index],
+                                          partie,
                                           value,
-                                          p.l[index].scores,
-                                          p.l[index].deutschs,
-                                          p.l[index].position,
-                                          p.l[index].color),
+                                          l[index].scores,
+                                          l[index].deutschs,
+                                          l[index].position,
+                                          l[index].color),
                                       //print(p.l[index].toString()),
                                     },
                                     style: const TextStyle(
-                                      //color: Color.fromARGB(p.l[index].color[0], p.l[index].color[1], p.l[index].color[2], p.l[index].color[3]),
+                                      //color: Color.fromARGB(l[index].color[0], l[index].color[1], l[index].color[2], l[index].color[3]),
                                     ),
                                     decoration: InputDecoration(
                                       border: const OutlineInputBorder(),
-                                      hintText: surnom(p.l, index),
+                                      hintText: surnom(l, index),
                                     ),
                                   )),
                             ),
                           ),
                         ),
                         IconButton(
-                            onPressed: () => deleteJoueur(index),
+                            onPressed: () => deleteJoueur(l[index],listeJoueur),
                             color: Colors.black54,
                             icon: const Icon(Icons.delete_rounded))
                       ]));
@@ -111,12 +73,13 @@ Widget addJoueurPage(Partie partie, context) {
 
     return Column(
       children: [
-        ListeJoueur(partie),
+        ListeJoueur(listeJoueur),
         TextButton.icon(
             onPressed: () {
               addJoueur(
-                  'jean',
+                  '',
                   //listeScoresMoyens(partie.l),
+                  partie,
                   [],
                   //List<bool>.generate(Boxes.getparties().length, (i) => false),
                   [],
@@ -129,11 +92,9 @@ Widget addJoueurPage(Partie partie, context) {
     );
   }
 
-
-
   return Scaffold(
       appBar: AppBar(
-        title: Text(partie.nom),
+        title: Text(listeJoueur[0].partie),
       ),
       body: buildContent(),
       floatingActionButton: FloatingActionButton(
@@ -167,22 +128,22 @@ List<int> listeScoresMoyens(List<Joueur> l) {
   return moyenne;
 }
 
-void setPositionJoueurs(Partie partie) {
-  List<List<int>> liste = sommeScoreJ(partie);
+void setPositionJoueurs(List<Joueur> l) {
+  List<List<int>> liste = sommeScoreJ(l);
   ranger(liste);
-  setPosition(liste, partie);
+  setPosition(liste, l);
 }
 
-void setPosition(List<List<int>> liste, Partie partie) {
+void setPosition(List<List<int>> liste, List<Joueur> l) {
   for (int i = 0; i < liste.length; i++) {
     //i index de manche      liste[i] == liste des scores dans partie.l'ordre croissant
     for (int j = 0; j < liste[i].length; j++) {
       //j == index d'une somme de score rangée dans partie.l'ordre croissant
-      for (int k = 0; k < partie.l.length; k++) {
+      for (int k = 0; k < l.length; k++) {
         //k index d'un joueur
-        if (liste[i][j] == partie.l[k].scoreJusqua(i)) {
+        if (liste[i][j] == l[k].scoreJusqua(i)) {
           //si la somme du score du joueur à la manche i est a partie.l'index j
-          partie.l[k].position = partie.l[k].position + [j];
+          l[k].position = l[k].position + [j];
         }
       }
     }
@@ -195,15 +156,50 @@ void ranger(List<List<int>> liste) {
   }
 }
 
-List<List<int>> sommeScoreJ(Partie partie) {
+List<List<int>> sommeScoreJ(List<Joueur> l) {
   List<List<int>> sommeScoreJ = [];
   List<int> scoreManche = [];
-  for (int j = 0; j < partie.l[0].scores.length; j++) {
-    for (int i = 0; i < partie.l.length; i++) {
-      scoreManche = scoreManche + [partie.l[i].scoreJusqua(j)];
+  for (int j = 0; j < l[0].scores.length; j++) {
+    for (int i = 0; i < l.length; i++) {
+      scoreManche = scoreManche + [l[i].scoreJusqua(j)];
     }
     sommeScoreJ = sommeScoreJ + [scoreManche];
     scoreManche = [];
   }
   return sommeScoreJ;
+}
+
+void addJoueur(String name, String partie, List<int> scores, List<bool> deutschs,
+    List<int> position, List<int> color) {
+
+  Joueur j = Joueur(name,partie, scores, deutschs, position, color);
+
+  final box = Boxes.getparties();
+  box.add(j);
+  //print(box.values.toList().toString());
+
+  //print(partie.l);
+  //partie.save();
+}
+
+void editJoueur(Joueur j,String partie, String nom, List<int> scores, List<bool> deutschs, List<int> position, List<int> color) {
+  j.nom = nom;
+  j.partie = partie;
+  j.scores = scores;
+  j.deutschs = deutschs;
+  j.position = position;
+  j.color = color;
+
+  j.save();
+  //editPartie(partie, l, nom);
+}
+
+void deleteJoueur(Joueur j,List<Joueur> l) {
+  if(l.length > 1){
+    j.delete();
+  }else{
+    addJoueur('', partie, [], [], [], []);
+    j.delete();
+  }
+
 }

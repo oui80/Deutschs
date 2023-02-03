@@ -1,57 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:nomaislaoh/main.dart';
 
 import '../boxes.dart';
 import '../model/Joueur.dart';
-import '../model/Partie.dart';
+
 
 @override
-Widget HistoricPage(BuildContext context) {
+Widget HistoricPage(l,BuildContext context) {
   //List<Partie> l = boxes.getParties('Parties');
   return Scaffold(
       appBar: AppBar(
         title: const Text('Historique des parties'),
       ),
-      body: ValueListenableBuilder<Box<Partie>>(
-          valueListenable: Boxes.getparties().listenable(),
-          builder: (context, box, _) {
-            final listePartie = box.values.toList().cast<Partie>();
-            return Historicpartie(listePartie, context);
-          }));
+      body: Historicpartie(l, context));
 }
 
-Future addPartie(String name, List<Joueur> l) async {
-  final partie = Partie()
-    ..nom = name
-    ..l = l;
-  if (Boxes.getparties().isEmpty) {
-    partie.id = "0";
-  } else {
-    partie.id = Boxes.getparties().length.toString();
-  }
-  final box = Boxes.getparties();
-  box.put(partie.nom, partie);
-}
-
-void editPartie(Partie partie, List<Joueur> l, String nom) {
-  partie.l = l;
-  partie.nom = nom;
-  partie.id = partie.id;
-
-  partie.save();
-
-  final box = Boxes.getparties();
-  box.put(partie.id, partie);
-}
-
-void deletePartie(Partie partie) {
-  final box = Boxes.getparties();
-  box.delete(partie.id);
-}
-
-Widget Historicpartie(List<Partie> listePartie, BuildContext context) {
+Widget Historicpartie(List<Joueur> l, BuildContext context) {
   String nom = '';
   return Column(
     children: [
@@ -60,16 +23,16 @@ Widget Historicpartie(List<Partie> listePartie, BuildContext context) {
           width: MediaQuery.of(context).size.width,
           child: ListView.builder(
               shrinkWrap: true,
-              itemCount: listePartie.length,
+              itemCount: l.length,
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
                   onTap: () {
-                    numPartie = index;
+                    //partie = index;
                   },
                   child: Card(
                     child: Column(children: [
                       Text(
-                        listePartie[index].nom,
+                        l[index].nom,
                         style: const TextStyle(fontSize: 20),
                       ),
                       SizedBox(
@@ -77,7 +40,7 @@ Widget Historicpartie(List<Partie> listePartie, BuildContext context) {
                         child: ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: listePartie[index].l.length,
+                            itemCount: l.length,
                             itemBuilder: (context, indice) {
                               return Padding(
                                 padding: const EdgeInsets.only(
@@ -91,14 +54,14 @@ Widget Historicpartie(List<Partie> listePartie, BuildContext context) {
                                       flex: 3,
                                       fit: FlexFit.loose,
                                       child: Text(
-                                        listePartie[index].l[indice].nom,
+                                        l[indice].nom,
                                         style: const TextStyle(fontSize: 20),
                                       ),
                                     ),
                                     Expanded(
                                       flex: 1,
                                       child: Text(
-                                        "${listePartie[index].l[indice].sommeScore()}",
+                                        "${l[indice].sommeScore()}",
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 20),
@@ -146,16 +109,11 @@ Widget Historicpartie(List<Partie> listePartie, BuildContext context) {
                                 TextButton.icon(
                                   onPressed: () {
                                     Navigator.of(context).pop();
-                                    addPartie(nom, [
-                                      Joueur('pierre', [], [], [],
-                                          [255, 63, 245, 255]),
-                                      Joueur('bob', [], [], [],
-                                          [255, 63, 245, 255]),
-                                      Joueur('saol', [], [], [],
-                                          [255, 63, 245, 255]),
-                                      Joueur('ppola', [], [], [],
-                                          [255, 63, 245, 255])
-                                    ]);
+                                    //addJoueur();
+                                    //addJoueur();
+                                    //addJoueur();
+                                    //addJoueur();
+
                                   },
                                   label: const Text('valider'),
                                   icon: const Icon(Icons.check_rounded),
