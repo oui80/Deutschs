@@ -21,11 +21,11 @@ Future main() async {
   await Hive.openBox<Joueur>('partie1');
   //await Hive.deleteFromDisk();
 
-  runApp(const MaterialApp(home: MyApp()));
+  runApp(MaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
             final pages = [
               addJoueurPage(listeCourante,context),
               TableauScore(listeCourante,context),
-              HistoricPage(listeCourante,context),
+              HistoricPage(listeJoueur,context),
               statisticsPage(listeCourante),
             ];
             return pages[currentIndex];

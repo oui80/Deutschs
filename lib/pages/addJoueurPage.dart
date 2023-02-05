@@ -176,13 +176,13 @@ void addJoueur(String name, String partie, List<int> scores, List<bool> deutschs
 
   final box = Boxes.getparties();
   box.add(j);
-  //print(box.values.toList().toString());
+  print(box.values.toList().toString());
 
   //print(partie.l);
   //partie.save();
 }
 
-void editJoueur(Joueur j,String partie, String nom, List<int> scores, List<bool> deutschs, List<int> position, List<int> color) {
+void editJoueur(Joueur j, String partie, String nom, List<int> scores, List<bool> deutschs, List<int> position, List<int> color) {
   j.nom = nom;
   j.partie = partie;
   j.scores = scores;
@@ -191,7 +191,6 @@ void editJoueur(Joueur j,String partie, String nom, List<int> scores, List<bool>
   j.color = color;
 
   j.save();
-  //editPartie(partie, l, nom);
 }
 
 void deleteJoueur(Joueur j,List<Joueur> l) {
@@ -201,5 +200,4 @@ void deleteJoueur(Joueur j,List<Joueur> l) {
     addJoueur('', partie, [], [], [], []);
     j.delete();
   }
-
 }

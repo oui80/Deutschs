@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Widgets/ScoreDialog.dart';
-import '../main.dart';
+import '../Widgets/ScoreDialog2.dart';
 import '../model/Joueur.dart';
 
 Widget TableauScore(l,BuildContext context) {
@@ -14,7 +13,7 @@ Widget TableauScore(l,BuildContext context) {
       onPressed: () => {
         showDialog(
           context: context,
-          builder: (context) => ScoreDialog(l,context),
+          builder: (context) => ScoreDialog2(l,context),
         ),
       },
       backgroundColor: Colors.blue,
