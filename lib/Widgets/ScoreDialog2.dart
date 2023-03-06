@@ -8,50 +8,49 @@ import '../model/Joueur.dart';
 import '../pages/addJoueurPage.dart';
 
 class ScoreDialog2 extends StatefulWidget {
-final List<Joueur> l;
-final BuildContext context;
+  final List<Joueur> l;
+  final BuildContext context;
 
-ScoreDialog2(this.l, this.context);
+  const ScoreDialog2(this.l, this.context, {super.key});
 
-@override
-_ScoreDialog2State createState() => _ScoreDialog2State();
+  @override
+  _ScoreDialog2State createState() => _ScoreDialog2State();
 }
 
 class _ScoreDialog2State extends State<ScoreDialog2> {
   late List<Joueur> l;
   late List<bool> deutschs;
+  late List<int> listeScore;
 
   @override
   void initState() {
     super.initState();
     l = widget.l;
-    deutschs = List<bool>.generate(widget.l.length, (i) => false);
+    deutschs = List<bool>.generate(l.length, (i) => false);
+    listeScore = List<int>.generate(l.length, (i) => 0);
   }
 
   @override
   Widget build(BuildContext context) {
-    var score = List<int>.generate(l.length, (i) => 0);
-
     return BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Dialog(
-          insetPadding: const EdgeInsets.all(25),
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: SizedBox(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height / 2.2,
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+      child: Column(
+        children: [
+          Expanded(child: Container()),
+          Dialog(
+            insetPadding: const EdgeInsets.all(33),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  left: 20, right: 20, top: 10, bottom: 10),
               child: Column(
                 children: [
                   //------------------------TITRE-------------------------------
                   const Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
-                      padding: EdgeInsets.only(bottom: 25, top: 10),
+                      padding: EdgeInsets.only(bottom: 12, top: 8),
                       child: Text(
                         'Ajout des Scores',
                         style: TextStyle(
@@ -60,148 +59,119 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
                       ),
                     ),
                   ),
-                  //------------------------DEUTSCHS----------------------------
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 10,
-                    ),
-                    child: Column(
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Row(
                       children: [
-                        const Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              bottom: 5,
-                            ),
-                            child: Text(
-                              'Deutschs',
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
+                        const Padding(
+                          padding: EdgeInsets.all(9),
+                          child: Text(
+                            'Deutsch',
+                            style: TextStyle(
+                              fontSize: 19,
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: ToggleButtons(
-                              isSelected: deutschs,
-                              selectedColor: Colors.blue,
-                              fillColor: const Color.fromRGBO(33, 150, 255,
-                                  0.6),
-                              renderBorder: false,
-                              children: l.map((joueur) =>
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 6, right: 6),
-                                    child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                            border: Border.all(width: 2),
-                                            borderRadius:
-                                            BorderRadius.circular(5)),
-                                        child: ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                                maxWidth:
-                                                (MediaQuery
-                                                    .of(context)
-                                                    .size
-                                                    .width -
-                                                    210) /
-                                                    l.length),
-                                            child: Text(
-                                              joueur.nom.toString(),
-                                              maxLines: 1,
-                                              style: const TextStyle(
-                                                fontSize: 20,
-                                              ),
-                                            ))),
-                                  ),).toList(),
-                              onPressed: (index) {
-                                setState(() {
-                                  for (int i = 0; i < deutschs.length; i++) {
-                                    if (i == index) {
-                                      deutschs[i] = !deutschs[i];
-                                    } else {
-                                      deutschs[i] = false;
-                                    }
-                                  }
-                                });
-                              }),
-                        )
-                      ],
-                    ),
-                  ),
-                  //------------------------SCORES------------------------------
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 10,
-                    ),
-                    child: Column(
-                      children: [
-                        const Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              bottom: 5,
-                            ),
-                            child: Text(
-                              'Scores',
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
+                        Expanded(child: Container()),
+                        const Padding(
+                          padding: EdgeInsets.only(right: 12),
+                          child: Text(
+                            'Score',
+                            style: TextStyle(
+                              fontSize: 19,
                             ),
                           ),
                         ),
-                        TextFieldsScores(l, score),
                       ],
                     ),
                   ),
-                  Expanded(child: Container()),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 350,
+                    ),
+                    child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: l.length,
+                        itemBuilder: (context, index) {
+                          if (deutschs[index]) {
+                            return DeutschEtScore(
+                                index, context, Colors.blue, 3.0);
+                          } else {
+                            return DeutschEtScore(
+                                index, context, Colors.grey, 1.0);
+                          }
+                        }),
+                  ),
                   //------------------------BUTTONS-----------------------------
-                  QuitButtons(context, l, deutschs, score)
+                  QuitButtons(context, l, deutschs, listeScore)
                 ],
               ),
             ),
           ),
-        ));
+          Expanded(child: Container())
+        ],
+      ),
+    );
   }
 
-
-//------------------------------SCORES------------------------------------------
-  Widget TextFieldsScores(List<Joueur> l, List<int> score) {
-    return SizedBox(
-      height: 70,
-      //width: (MediaQuery.of(context).size.width - 50) / listeJoueur.length,
-      child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: l.length,
-          itemBuilder: (context, index) {
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: (MediaQuery
-                    .of(context)
-                    .size
-                    .width - 78) / l.length,
+  Row DeutschEtScore(
+      int index, BuildContext context, Color couleur, double epaisseur) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 6,
+          child: GestureDetector(
+            onTap: () {
+              for (int i = 0; i < deutschs.length; i++) {
+                deutschs[i] = false;
+              }
+              deutschs[index] = !deutschs[index];
+              setState(() {});
+            },
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                border: Border.all(color: couleur, width: epaisseur),
+                borderRadius: BorderRadius.circular(5),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onChanged: (value) =>
-                  {
-                    score[index] = int.parse(value),
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    //hintText: score[index].toString(),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  l[index].nom.toString(),
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 19,
                   ),
                 ),
               ),
-            );
-          }),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              height: 40,
+              child: TextField(
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 20),
+                onChanged: (value) => {
+                  listeScore[index] = int.parse(value),
+                },
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.all(3.0),
+                  //hintText: listeScore[index].toString(),
+                ),
+              ),
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -210,41 +180,37 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
       List<int> score) {
     return Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 5),
-          child: TextButton.icon(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(Icons.delete_rounded),
-            label: const Text('annuler'),
-          ),
+        TextButton.icon(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(Icons.delete_rounded),
+          label: const Text('annuler'),
         ),
         Expanded(
           child: Container(),
         ),
-        Padding(
-          padding: const EdgeInsets.only(right: 5),
-          child: TextButton.icon(
-              label: const Text('valider'),
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                setState(() {
-                  edition(l, score, deutschs, partie);
-                  Navigator.of(context).pop();
-                });
-
-                //on regarde si quelqu'un a deutsch
-                for (int i = 0; i < deutschs.length; i++) {
-                  if (deutschs[i]) {}
+        TextButton.icon(
+            label: const Text('valider'),
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              //on regarde si quelqu'un a deutsch
+              for (int i = 0; i < deutschs.length; i++) {
+                if (deutschs[i]) {
+                  setState(() {
+                    edition(l, score, deutschs, partie);
+                    setPosition(l);
+                    Navigator.of(context).pop();
+                  });
                 }
-              }),
-        ),
+              }
+            }),
       ],
     );
   }
 
-  void edition(List<Joueur> l, List<int> score, List<bool> deutschs, String partie) {
+  void edition(
+      List<Joueur> l, List<int> score, List<bool> deutschs, String partie) {
     int joueurQuiDeutsch = 0;
     int scoremin = score[0];
 
@@ -255,14 +221,9 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
       if (deutschs[i]) {
         joueurQuiDeutsch = i;
       }
-      editJoueur(
-          l[i],
-          partie,
-          l[i].nom,
-          l[i].scores + [score[i]],
-          l[i].deutschs + [deutschs[i]],
-          l[i].position,
-          l[i].color);
+
+      editJoueur(l[i], partie, l[i].nom, l[i].scores + [score[i]],
+          l[i].deutschs + [0], l[i].position + [0], l[i].color);
     }
 
     //on change le dernier score du deutscher
@@ -271,9 +232,12 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
     if (score[joueurQuiDeutsch] == scoremin) {
       //si celui qui  a deutsch a le plus petit score
       l[joueurQuiDeutsch].scores[last] = l[joueurQuiDeutsch].scores[last] - 5;
+      l[joueurQuiDeutsch].deutschs[last] = 1;
     } else {
       l[joueurQuiDeutsch].scores[last] = l[joueurQuiDeutsch].scores[last] + 5;
-    };
+      l[joueurQuiDeutsch].deutschs[last] = 2;
+    }
+    ;
     editJoueur(
         l[joueurQuiDeutsch],
         partie,
@@ -282,5 +246,23 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
         l[joueurQuiDeutsch].deutschs,
         l[joueurQuiDeutsch].position,
         l[joueurQuiDeutsch].color);
+  }
+}
+
+void setPosition(List<Joueur> l) {
+  List<int> res = [];
+
+  for (int i = 0; i < l.length; i++) {
+    res = res + [l[i].sommeScore()];
+  }
+  res.sort();
+  for (int j = 0; j < l.length; j++) {
+
+    int k = 0;
+    while (k < res.length && l[j].sommeScore() != res[k]){
+      k++;
+      l[j].position.last = k;
+    }
+
   }
 }

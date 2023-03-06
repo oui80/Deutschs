@@ -5,12 +5,10 @@ import 'package:nomaislaoh/boxes.dart';
 import 'package:nomaislaoh/pages/HistoricPage.dart';
 import 'package:nomaislaoh/pages/TableauScore.dart';
 import 'package:nomaislaoh/pages/StatPage.dart';
-//import 'boxes.dart';
 import 'pages/addJoueurPage.dart';
 import 'model/Joueur.dart';
 
-String partie = 'p1';
-
+String partie = "partie 1";
 int currentIndex = 0;
 
 
@@ -18,9 +16,8 @@ Future main() async {
 
   await Hive.initFlutter();
   Hive.registerAdapter(JoueurAdapter());
-  await Hive.openBox<Joueur>('partie1');
+  await Hive.openBox<Joueur>('zdfviuvze');
   //await Hive.deleteFromDisk();
-
   runApp(MaterialApp(home: MyApp()));
 }
 
@@ -36,18 +33,27 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
 
+    void callback() {
+      setState((){
+
+      });
+    }
+
     const Color colorbutton = Colors.white;
 
     return Scaffold(
       body: ValueListenableBuilder<Box<Joueur>>(
           valueListenable: Boxes.getparties().listenable(),
           builder: (context, box, _) {
-            final listeJoueur = box.values.toList().cast<Joueur>();
+            List<Joueur> listeJoueur = box.values.toList().cast<Joueur>();
+
+            print(listeJoueur);
+
             if(listeJoueur.isEmpty){
-              addJoueur('', partie, [], [], [], []);
-              addJoueur('', partie, [], [], [], []);
-              addJoueur('', partie, [], [], [], []);
-              addJoueur('', partie, [], [], [], []);
+              addJoueur('', partie, [], [], [0], []);
+              addJoueur('', partie, [], [], [0], []);
+              addJoueur('', partie, [], [], [0], []);
+              addJoueur('', partie, [], [], [0], []);
             }
             //on prend uniquement les joueurs qui sont de la partie selectionnée
             List<Joueur> listeCourante = [];
@@ -56,22 +62,24 @@ class _MyAppState extends State<MyApp> {
                 listeCourante = listeCourante + [listeJoueur[i]];
               }
             }
-
-            final pages = [
-              addJoueurPage(listeCourante,context),
+            print("");
+            print("liste courante : "+listeCourante.toString());
+            print("");
+            List<Widget> pages = [
+              addJoueurPage(listeCourante,callbackFunction: callback),
               TableauScore(listeCourante,context),
-              HistoricPage(listeJoueur,context),
+              Historicpartie(listeJoueur, callbackFunction: callback,),
               statisticsPage(listeCourante),
             ];
             return pages[currentIndex];
           }),
       bottomNavigationBar: Container(
         color: Colors.blue,
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(12),
         child: GNav(
           haptic: true,
           gap: 8,
-          padding: const EdgeInsets.all(13),
+          padding: const EdgeInsets.only(left: 10,right: 10,top: 6,bottom: 6),
           tabBackgroundColor: Colors.black12,
           backgroundColor: Colors.blue,
           onTabChange: (index) => setState(() => currentIndex = index),
@@ -95,13 +103,13 @@ class _MyAppState extends State<MyApp> {
               iconActiveColor: colorbutton,
               textColor: colorbutton,
               icon: Icons.history,
-              text: 'historique',
+              text: 'Historique',
             ),
             GButton(
               iconColor: colorbutton,
               iconActiveColor: colorbutton,
               textColor: colorbutton,
-              icon: Icons.table_rows_rounded,
+              icon: Icons.query_stats_rounded,
               text: 'Statistiques',
             ),
           ],

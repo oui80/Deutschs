@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import '../Widgets/ScoreDialog2.dart';
 import '../model/Joueur.dart';
 
-Widget TableauScore(l,BuildContext context) {
+Widget TableauScore(l, BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: const Text('TableauScore'),
+      title: const Text('Tableau des Scores'),
     ),
-    body: tab(l,context),
+    body: tab(l, context),
     floatingActionButton: FloatingActionButton(
       heroTag: 'plus_score',
       onPressed: () => {
         showDialog(
           context: context,
-          builder: (context) => ScoreDialog2(l,context),
+          builder: (context) => ScoreDialog2(l, context),
         ),
       },
       backgroundColor: Colors.blue,
@@ -22,32 +22,44 @@ Widget TableauScore(l,BuildContext context) {
   );
 }
 
-Widget tab(l,BuildContext context) {
-  var hauteur = 300.0;
+Widget tab(l, BuildContext context) {
+  var hauteur = MediaQuery.of(context).size.height - 200;
   for (int i = 0; i < l[0].scores.length; i++) {
     hauteur = hauteur + 28.88;
   }
+  bool isVisible = true;
   return Padding(
-    padding: const EdgeInsets.all(10),
+    padding: const EdgeInsets.only(top: 0, left: 5),
     child: SingleChildScrollView(
       child: SizedBox(
         height: hauteur,
         child: ListView.builder(
+          physics: const BouncingScrollPhysics(),
           scrollDirection: Axis.horizontal,
           itemCount: l.length,
           itemBuilder: (context, index) {
             final j = l[index];
+            if (index == l.length - 1) {
+              isVisible = false;
+            }
             return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              const Padding(padding: EdgeInsets.all(5)),
-              SizedBox(child: colonne(j, context)),
-              const Padding(padding: EdgeInsets.all(5)),
-              Container(
-                decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.black54,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(10))),
-                width: 2,
+              const Padding(padding: EdgeInsets.all(3)),
+              SizedBox(child: colonne(j, context, l)),
+              const Padding(padding: EdgeInsets.all(3)),
+              Visibility(
+                visible: isVisible,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black54,
+                        ),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10))),
+                    width: 2,
+                  ),
+                ),
               ),
             ]);
           },
@@ -57,56 +69,87 @@ Widget tab(l,BuildContext context) {
   );
 }
 
-Column colonne(Joueur j, BuildContext context) {
-  return Column(
+Widget colonne(Joueur j, BuildContext context, List<Joueur> l) {
+  var isVisible = false;
+  if (j.position.last == 0 && j.scores.isNotEmpty) {
+    isVisible = true;
+  }
+  return Stack(
     children: [
-      ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 75),
-        child: Text(
-          j.nom,
-          maxLines: 1,
-          style: const TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-            //color: Color.fromRGBO(j.rgb[0], j.rgb[1], j.rgb[2], 1),
-          ),
-        ),
-      ),
-      const Padding(padding: EdgeInsets.all(2)),
-      Text(
-        j.sommeScore().toString(),
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          //color: Color.fromRGBO(j.rgb[0], j.rgb[1], j.rgb[2], 1),
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(top: 7, bottom: 7),
-        child: Container(
-          width: 60,
-          height: 2,
-          decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black54,
-              ),
-              borderRadius: const BorderRadius.all(Radius.circular(10))),
+      Positioned(
+        left: 18,
+        top: 0,
+        child: Visibility(
+            visible: isVisible,
+            child: const Image(
+              image: AssetImage('lib/Assets/crown2.png'),
+              width: 30,
+              height: 25,
+            )
         ),
       ),
       Column(
-        children: j.scores
-            .map((score) => Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Text(
-                    score.toString(),
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                      //fontWeight: FontWeight.bold,
-                    ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 22),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 75),
+              child: Text(
+                j.nom,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  //color: Color.fromRGBO(j.rgb[0], j.rgb[1], j.rgb[2], 1),
+                ),
+              ),
+            ),
+          ),
+          const Padding(padding: EdgeInsets.all(2)),
+          Text(
+            j.sommeScore().toString(),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              //color: Color.fromRGBO(j.rgb[0], j.rgb[1], j.rgb[2], 1),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 7, bottom: 7),
+            child: Container(
+              width: 66,
+              height: 2,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.black54,
                   ),
-                ))
-            .toList(),
+                  borderRadius: const BorderRadius.all(Radius.circular(10))),
+            ),
+          ),
+          Column(
+            children: j.scores.asMap().keys.map((index) {
+              Color couleur = Colors.black;
+              if (j.deutschs[index] == 1) {
+                couleur = Colors.green;
+              } else {
+                if (j.deutschs[index] == 2) {
+                  couleur = Colors.red;
+                }
+              }
+              return Padding(
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  j.scores[index].toString(),
+                  style: TextStyle(
+                    color: couleur,
+                    fontSize: 18,
+                    //fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     ],
   );

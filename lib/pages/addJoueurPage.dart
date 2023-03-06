@@ -3,108 +3,156 @@ import '../boxes.dart';
 import '../main.dart';
 import '../model/Joueur.dart';
 
-Widget addJoueurPage(List<Joueur> listeJoueur, context) {
+class addJoueurPage extends StatefulWidget {
+  List<Joueur> listeJoueur;
+  final Function callbackFunction;
 
-  Widget ListeJoueur(List<Joueur> l) {
+  addJoueurPage(this.listeJoueur, {Key? key, required this.callbackFunction})
+      : super(key: key);
 
-    return Expanded(
-      child: SizedBox(
-        //height: 200,
-        width: MediaQuery.of(context).size.width,
-        child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: l.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                  padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        Expanded(
-                          child: SizedBox(
-                            //width: MediaQuery.of(context).size.width-50,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                left: 5,
-                                top: 5,
-                                right: 5,
-                              ),
-                              child: Card(
-                                  elevation: 3,
-                                  shadowColor: Colors.grey,
-                                  child: TextField(
-                                    //cursorColor: Color.fromARGB(l[index].color[0],l[index].color[1],l[index].color[2],l[index].color[3]),
-                                    cursorHeight: 20,
-                                    textAlignVertical:
-                                    TextAlignVertical.center,
-                                    onChanged: (value) => {
-                                      editJoueur(
-                                          l[index],
-                                          partie,
-                                          value,
-                                          l[index].scores,
-                                          l[index].deutschs,
-                                          l[index].position,
-                                          l[index].color),
-                                      //print(p.l[index].toString()),
-                                    },
-                                    style: const TextStyle(
-                                      //color: Color.fromARGB(l[index].color[0], l[index].color[1], l[index].color[2], l[index].color[3]),
-                                    ),
-                                    decoration: InputDecoration(
-                                      border: const OutlineInputBorder(),
-                                      hintText: surnom(l, index),
-                                    ),
-                                  )),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                            onPressed: () => deleteJoueur(l[index],listeJoueur),
-                            color: Colors.black54,
-                            icon: const Icon(Icons.delete_rounded))
-                      ]));
-            }),
-      ),
-    );
+  @override
+  State<addJoueurPage> createState() => _addJoueurPageState();
+}
+
+class _addJoueurPageState extends State<addJoueurPage> {
+  late List<Joueur> listeJoueur;
+  late Function callback;
+
+  @override
+  void initState() {
+    super.initState();
+    listeJoueur = widget.listeJoueur;
+    callback = widget.callbackFunction;
   }
 
-  Widget buildContent() {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(listeJoueur[0].partie),
+        ),
+        body: buildContent(listeJoueur),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            currentIndex = 1;
+            callback();
+          },
+          child: const Icon(Icons.arrow_forward_rounded),
+        ));
+  }
 
+  Widget buildContent(List<Joueur> l) {
     return Column(
       children: [
-        ListeJoueur(listeJoueur),
+        const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: Text("Joueurs", style: TextStyle(
+            fontSize: 28,
+          ),),
+        ),
+        Expanded(
+          child: SizedBox(
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: l.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                      padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Expanded(
+                              child: SizedBox(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 10,
+                                    top: 5,
+                                    right: 5,
+                                  ),
+                                  child: Card(
+                                      elevation: 3,
+                                      shadowColor: Colors.grey,
+                                      child: TextField(
+                                        //cursorColor: Color.fromARGB(l[index].color[0],l[index].color[1],l[index].color[2],l[index].color[3]),
+                                        cursorHeight: 20,
+                                        textAlignVertical:
+                                        TextAlignVertical.center,
+                                        onChanged: (value) =>
+                                        {
+                                          editJoueur(
+                                              l[index],
+                                              partie,
+                                              value,
+                                              l[index].scores,
+                                              l[index].deutschs,
+                                              l[index].position,
+                                              l[index].color),
+                                          //print(p.l[index].toString()),
+                                        },
+                                        style: const TextStyle(
+                                          //color: Color.fromARGB(l[index].color[0], l[index].color[1], l[index].color[2], l[index].color[3]),
+                                        ),
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: surnom(l, index),
+                                        ),
+                                      )),
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                                onPressed: () {
+                                  if (l.length > 1) {
+                                    deleteJoueur(l[index], listeJoueur);
+                                  } else {
+                                    editJoueur(
+                                        l[index],
+                                        partie,
+                                        '',
+                                        [],
+                                        [],
+                                        [0],
+                                        []);
+                                  };
+                                  callback();
+                                  setState(() {});
+                                },
+                                color: Colors.black54,
+                                icon: const Icon(Icons.delete_rounded))
+                          ]));
+                }),
+          ),
+        ),
         TextButton.icon(
             onPressed: () {
-              addJoueur(
-                  '',
-                  //listeScoresMoyens(partie.l),
-                  partie,
-                  [],
-                  //List<bool>.generate(Boxes.getparties().length, (i) => false),
-                  [],
-                  [],
-                  [255, 63, 245, 255]);
+              if(l.length == 1){
+                addJoueur(
+                    '',
+                    partie,
+                    l[0].scores,
+                    [],
+                    [0],
+                    [255, 63, 245, 255]);
+              }else{
+                addJoueur(
+                    '',
+                    partie,
+                    listeScoresMoyens(l),
+                    List<int>.generate(l.length, (i) => 0),
+                    List<int>.generate(l[0].position.length, (i) => l[0].position.length-1),
+                    [255, 63, 245, 255]);
+              }
+              callback();
+              setState(() {
+
+              });
             },
             icon: const Icon(Icons.add_circle_outline_rounded),
             label: const Text('Ajouter joueur'))
       ],
     );
   }
-
-  return Scaffold(
-      appBar: AppBar(
-        title: Text(listeJoueur[0].partie),
-      ),
-      body: buildContent(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          currentIndex = 1;
-        },
-        child: const Icon(Icons.arrow_forward_rounded),
-      ));
 }
-
 
 
 String surnom(List<Joueur> l, int index) {
@@ -128,61 +176,18 @@ List<int> listeScoresMoyens(List<Joueur> l) {
   return moyenne;
 }
 
-void setPositionJoueurs(List<Joueur> l) {
-  List<List<int>> liste = sommeScoreJ(l);
-  ranger(liste);
-  setPosition(liste, l);
-}
-
-void setPosition(List<List<int>> liste, List<Joueur> l) {
-  for (int i = 0; i < liste.length; i++) {
-    //i index de manche      liste[i] == liste des scores dans partie.l'ordre croissant
-    for (int j = 0; j < liste[i].length; j++) {
-      //j == index d'une somme de score rangée dans partie.l'ordre croissant
-      for (int k = 0; k < l.length; k++) {
-        //k index d'un joueur
-        if (liste[i][j] == l[k].scoreJusqua(i)) {
-          //si la somme du score du joueur à la manche i est a partie.l'index j
-          l[k].position = l[k].position + [j];
-        }
-      }
-    }
-  }
-}
-
-void ranger(List<List<int>> liste) {
-  for (int i = 0; i < liste.length; i++) {
-    liste[i].sort();
-  }
-}
-
-List<List<int>> sommeScoreJ(List<Joueur> l) {
-  List<List<int>> sommeScoreJ = [];
-  List<int> scoreManche = [];
-  for (int j = 0; j < l[0].scores.length; j++) {
-    for (int i = 0; i < l.length; i++) {
-      scoreManche = scoreManche + [l[i].scoreJusqua(j)];
-    }
-    sommeScoreJ = sommeScoreJ + [scoreManche];
-    scoreManche = [];
-  }
-  return sommeScoreJ;
-}
-
-void addJoueur(String name, String partie, List<int> scores, List<bool> deutschs,
+void addJoueur(String name, String partie, List<int> scores,
+    List<int> deutschs,
     List<int> position, List<int> color) {
-
-  Joueur j = Joueur(name,partie, scores, deutschs, position, color);
+  Joueur j = Joueur(name, partie, scores, deutschs, position, color);
 
   final box = Boxes.getparties();
   box.add(j);
-  print(box.values.toList().toString());
 
-  //print(partie.l);
-  //partie.save();
 }
 
-void editJoueur(Joueur j, String partie, String nom, List<int> scores, List<bool> deutschs, List<int> position, List<int> color) {
+void editJoueur(Joueur j, String partie, String nom, List<int> scores,
+    List<int> deutschs, List<int> position, List<int> color) {
   j.nom = nom;
   j.partie = partie;
   j.scores = scores;
@@ -193,11 +198,11 @@ void editJoueur(Joueur j, String partie, String nom, List<int> scores, List<bool
   j.save();
 }
 
-void deleteJoueur(Joueur j,List<Joueur> l) {
-  if(l.length > 1){
+void deleteJoueur(Joueur j, List<Joueur> l) {
+  if (l.length == 1) {
+    editJoueur(j, partie, "", [], [], [0], []);
+  } else {
     j.delete();
-  }else{
-    addJoueur('', partie, [], [], [], []);
-    j.delete();
+
   }
 }

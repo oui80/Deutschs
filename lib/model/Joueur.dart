@@ -9,7 +9,7 @@ class Joueur extends HiveObject{
   @HiveField(1)
   late List<int> scores;
   @HiveField(2)
-  late List<bool> deutschs;
+  late List<int> deutschs;
   @HiveField(3)
   late List<int> position;
   @HiveField(4)
@@ -37,8 +37,18 @@ class Joueur extends HiveObject{
     return somme;
   }
 
+  int NbDeutschs(){
+    int res = 0;
+    for (int i = 0; i<deutschs.length; i++){
+      if(deutschs[i]==1){
+        res = res + 1;
+      }
+    }
+    return res;
+  }
+
   @override
   String toString(){
-    return nom + " " + sommeScore().toString();
+    return "$nom  ${sommeScore()} ${position}";
   }
 }
