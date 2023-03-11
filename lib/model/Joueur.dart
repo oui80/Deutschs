@@ -40,7 +40,7 @@ class Joueur extends HiveObject{
   int NbDeutschs(){
     int res = 0;
     for (int i = 0; i<deutschs.length; i++){
-      if(deutschs[i]==1){
+      if(deutschs[i]==1 || deutschs[i]==2){
         res = res + 1;
       }
     }
@@ -49,6 +49,17 @@ class Joueur extends HiveObject{
 
   @override
   String toString(){
-    return "$nom  ${sommeScore()} ${position}";
+    return "$nom  ${sommeScore()} ${scores}";
+  }
+
+  toJson(){
+    return {
+      'nom' : nom,
+      'scores' : scores,
+      'deutschs' : deutschs,
+      'position' : position,
+      'color' : color,
+      'partie' : partie,
+    };
   }
 }

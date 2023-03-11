@@ -1,24 +1,68 @@
+import 'package:Dutch/model/Utilisateur.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:nomaislaoh/boxes.dart';
-import 'package:nomaislaoh/pages/HistoricPage.dart';
-import 'package:nomaislaoh/pages/TableauScore.dart';
-import 'package:nomaislaoh/pages/StatPage.dart';
+import 'package:Dutch/pages/HistoricPage.dart';
+import 'package:Dutch/pages/TableauScore.dart';
+import 'package:Dutch/pages/StatPage.dart';
+import 'boxes.dart';
 import 'pages/addJoueurPage.dart';
 import 'model/Joueur.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-String partie = "partie 1";
+String partieCourante = "partie 1";
 int currentIndex = 0;
 
+bool imprime = false;
+
+void printlog(String chaine) {
+  if (imprime) {
+    print(chaine);
+  }
+}
 
 Future main() async {
-
   await Hive.initFlutter();
   Hive.registerAdapter(JoueurAdapter());
-  await Hive.openBox<Joueur>('zdfviuvze');
+  await Hive.openBox<Joueur>('data');
   //await Hive.deleteFromDisk();
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  Utilisateur user = CreateUser('pseudo', 'login', 'mdp', 0, false);
+  upLoadUser(user);
+
   runApp(MaterialApp(home: MyApp()));
+}
+
+dynamic CreateUser(String pseudo, String login, String mdp, int clickpub, bool Avalide) {
+
+  var listeJoueur = Boxes.getparties().values.toList();
+  Map<String, dynamic> res = {};
+  for (int i = 0; i < listeJoueur.length; i++) {
+    res[i.toString()] = listeJoueur[i].toJson();
+  }
+
+  Utilisateur u = Utilisateur(pseudo, login, mdp, res, clickpub, Avalide);
+
+  return u;
+}
+
+Future upLoadUser(Utilisateur u) async {
+  final docUser = FirebaseFirestore.instance.collection('users').doc('my_id');
+
+  final json = {
+    'pseudo': u.pseudo,
+    'login': u.login,
+    'mdp': u.mdp,
+    'dateCreation': u.dateCreation,
+    'parties': u.parties,
+    'clickpub': u.clickpub,
+    'AvalideCondition': u.AvalideCondition
+  };
+
+  await docUser.set(json);
 }
 
 class MyApp extends StatefulWidget {
@@ -29,57 +73,33 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
-
     void callback() {
-      setState((){
-
-      });
+      setState(() {});
     }
 
     const Color colorbutton = Colors.white;
 
+    List<Widget> pages = [
+      addJoueurPage(callbackFunction: callback),
+      TableauScore(context),
+      Historicpartie(
+        callbackFunction: callback,
+      ),
+      statisticsPage(),
+    ];
+
     return Scaffold(
-      body: ValueListenableBuilder<Box<Joueur>>(
-          valueListenable: Boxes.getparties().listenable(),
-          builder: (context, box, _) {
-            List<Joueur> listeJoueur = box.values.toList().cast<Joueur>();
-
-            print(listeJoueur);
-
-            if(listeJoueur.isEmpty){
-              addJoueur('', partie, [], [], [0], []);
-              addJoueur('', partie, [], [], [0], []);
-              addJoueur('', partie, [], [], [0], []);
-              addJoueur('', partie, [], [], [0], []);
-            }
-            //on prend uniquement les joueurs qui sont de la partie selectionnée
-            List<Joueur> listeCourante = [];
-            for (int i = 0;i<listeJoueur.length;i++){
-              if (listeJoueur[i].partie == partie){
-                listeCourante = listeCourante + [listeJoueur[i]];
-              }
-            }
-            print("");
-            print("liste courante : "+listeCourante.toString());
-            print("");
-            List<Widget> pages = [
-              addJoueurPage(listeCourante,callbackFunction: callback),
-              TableauScore(listeCourante,context),
-              Historicpartie(listeJoueur, callbackFunction: callback,),
-              statisticsPage(listeCourante),
-            ];
-            return pages[currentIndex];
-          }),
+      body: pages[currentIndex],
       bottomNavigationBar: Container(
         color: Colors.blue,
         padding: const EdgeInsets.all(12),
         child: GNav(
           haptic: true,
           gap: 8,
-          padding: const EdgeInsets.only(left: 10,right: 10,top: 6,bottom: 6),
+          padding:
+              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 6),
           tabBackgroundColor: Colors.black12,
           backgroundColor: Colors.blue,
           onTabChange: (index) => setState(() => currentIndex = index),

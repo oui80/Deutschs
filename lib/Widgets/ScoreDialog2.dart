@@ -66,7 +66,7 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
                         const Padding(
                           padding: EdgeInsets.all(9),
                           child: Text(
-                            'Deutsch',
+                            'Dutch',
                             style: TextStyle(
                               fontSize: 19,
                             ),
@@ -198,7 +198,7 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
               for (int i = 0; i < deutschs.length; i++) {
                 if (deutschs[i]) {
                   setState(() {
-                    edition(l, score, deutschs, partie);
+                    edition(l, score, deutschs);
                     setPosition(l);
                     Navigator.of(context).pop();
                   });
@@ -209,60 +209,55 @@ class _ScoreDialog2State extends State<ScoreDialog2> {
     );
   }
 
-  void edition(
-      List<Joueur> l, List<int> score, List<bool> deutschs, String partie) {
-    int joueurQuiDeutsch = 0;
-    int scoremin = score[0];
+  void edition(List<Joueur> l, List<int> score, List<bool> deutschs) {
 
-    for (int i = 0; i < score.length; i++) {
-      if (score[i] < scoremin) {
-        scoremin = score[i];
-      }
-      if (deutschs[i]) {
-        joueurQuiDeutsch = i;
-      }
+    int joueurQuiDeutsch = deutschs.indexOf(true);
 
-      editJoueur(l[i], partie, l[i].nom, l[i].scores + [score[i]],
-          l[i].deutschs + [0], l[i].position + [0], l[i].color);
+    int valide = 1;
+    for (int i = 0; i < l.length; i++) {
+      l[i].deutschs = l[i].deutschs + [0];
+      if (score[i] < score[joueurQuiDeutsch]) {
+        valide = 2;
+        l[i].deutschs.last = 3;
+      }
+      editJoueur(l[i], l[i].partie, l[i].nom, l[i].scores + [score[i]], l[i].deutschs,
+          l[i].position + [0], l[i].color);
     }
-
-    //on change le dernier score du deutscher
-    int last = l[0].scores.length - 1;
-
-    if (score[joueurQuiDeutsch] == scoremin) {
-      //si celui qui  a deutsch a le plus petit score
-      l[joueurQuiDeutsch].scores[last] = l[joueurQuiDeutsch].scores[last] - 5;
-      l[joueurQuiDeutsch].deutschs[last] = 1;
+    
+    if (valide == 1) {
+      l[joueurQuiDeutsch].scores.last = l[joueurQuiDeutsch].scores.last - 5;
+      l[joueurQuiDeutsch].deutschs.last = 1;
     } else {
-      l[joueurQuiDeutsch].scores[last] = l[joueurQuiDeutsch].scores[last] + 5;
-      l[joueurQuiDeutsch].deutschs[last] = 2;
+      l[joueurQuiDeutsch].scores.last = l[joueurQuiDeutsch].scores.last + 5;
+      l[joueurQuiDeutsch].deutschs.last = 2;
     }
-    ;
     editJoueur(
         l[joueurQuiDeutsch],
-        partie,
+        l[joueurQuiDeutsch].partie,
         l[joueurQuiDeutsch].nom,
         l[joueurQuiDeutsch].scores,
         l[joueurQuiDeutsch].deutschs,
         l[joueurQuiDeutsch].position,
         l[joueurQuiDeutsch].color);
+    printlog(l.toString());
+
   }
 }
 
 void setPosition(List<Joueur> l) {
   List<int> res = [];
-
   for (int i = 0; i < l.length; i++) {
-    res = res + [l[i].sommeScore()];
+    if(!res.contains(l[i].sommeScore())){
+      res = res + [l[i].sommeScore()];
+    }
   }
   res.sort();
-  for (int j = 0; j < l.length; j++) {
 
+  for (int j = 0; j < l.length; j++) {//pour tous les joueurs
     int k = 0;
-    while (k < res.length && l[j].sommeScore() != res[k]){
+    while (k < res.length && l[j].sommeScore() != res[k]) {//on parcour res tant que qu'on a pas trouver le bon
       k++;
-      l[j].position.last = k;
     }
-
+    l[j].position.last = k;
   }
 }

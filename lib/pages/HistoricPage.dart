@@ -1,13 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
+import '../boxes.dart';
 import '../main.dart';
 import '../model/Joueur.dart';
 import 'addJoueurPage.dart';
 
+//ranger liste par postion
+List<Joueur> ranger(List<Joueur> l) {
+  if (l[0].position.length > 1){
+    List<Joueur> res = [];
+    for (int j = 0;j<l.length;j++){
+      int i = 0;
+      while (l[i].position.last != j){
+        i++;
+      }
+      res = res + [l[i]];
+    }
+    return res;
+  }else{
+    return l;
+  }
+}
+
 class Historicpartie extends StatefulWidget {
-  late List<Joueur> l;
+
   final Function callbackFunction;
 
-  Historicpartie(this.l, {Key? key, required this.callbackFunction})
+  Historicpartie({Key? key, required this.callbackFunction})
       : super(key: key);
 
   @override
@@ -15,18 +35,35 @@ class Historicpartie extends StatefulWidget {
 }
 
 class _HistoricpartieState extends State<Historicpartie> {
-  late List<Joueur> l;
   late Function callback;
 
   @override
   void initState() {
     super.initState();
-    l = widget.l;
     callback = widget.callbackFunction;
   }
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<Box<Joueur>>(
+        valueListenable: Boxes.getparties().listenable(),
+        builder: (context, box, _) {
+          List<Joueur> listeJoueur = box.values.toList().cast<Joueur>();
+
+          printlog(listeJoueur.toString());
+
+          if (listeJoueur.isEmpty) {
+            addJoueur('', partieCourante, [], [], [0], []);
+            addJoueur('', partieCourante, [], [], [0], []);
+            addJoueur('', partieCourante, [], [], [0], []);
+            addJoueur('', partieCourante, [], [], [0], []);
+          }
+
+          return Construire(listeJoueur,context);});
+  }
+
+  Scaffold Construire(List<Joueur> l, BuildContext context) {
+
     List<String> nomParties = [];
     for (int i = 0; i < l.length; i++) {
       if (!nomParties.contains(l[i].partie)) {
@@ -65,7 +102,7 @@ class _HistoricpartieState extends State<Historicpartie> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              partie = nomParties[index];
+                              partieCourante = nomParties[index];
                               currentIndex = 0;
                               callback();
                             },
@@ -95,62 +132,8 @@ class _HistoricpartieState extends State<Historicpartie> {
                             onPressed: () {
                               showDialog(
                                   context: context,
-                                  builder: (context) => AlertDialog(
-                                        content: SizedBox(
-                                          height: 100,
-                                          child: Column(
-                                            children: [
-                                              TextButton.icon(
-                                                  onPressed: () {
-                                                    supprimePartie(
-                                                        index, l, nomParties);
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  icon: const Icon(
-                                                      Icons.delete_rounded),
-                                                  label:
-                                                      const Text("supprimer")),
-                                              TextButton.icon(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (context) => AlertDialog(
-                                                          title: const Text("Les scores vont être remis à zéro",style: TextStyle(
-                                                            fontSize: 15,
-                                                          ),),
-                                                          content: SizedBox(
-                                                            height: 30,
-                                                            child: Row(
-                                                                      children: [
-                                                                        TextButton(
-                                                                            onPressed: () {
-                                                                              scoreZero(
-                                                                                  index,
-                                                                                  l,
-                                                                                  nomParties);
-                                                                              Navigator.of(context).pop();
-                                                                            },
-                                                                            child: const Text("valider")),
-                                                                        Expanded(child: Container()),
-                                                                        TextButton(
-                                                                            onPressed: () {
-                                                                              Navigator.of(context).pop();
-                                                                            },
-                                                                            child: const Text("Annuler")),
-                                                                      ],
-                                                                    ),
-                                                          ),
-                                                        ));
-
-                                                  },
-                                                  label: const Text("Score à 0"),
-                                                  icon: const Icon(
-                                                      Icons.refresh_rounded))
-                                            ],
-                                          ),
-                                        ),
-                                      ));
+                                  builder: (context) => SupPartieDialog(l,
+                                      index, nomParties, context));
                             },
                             icon: const Icon(Icons.more_vert_rounded))
                       ],
@@ -188,11 +171,15 @@ class _HistoricpartieState extends State<Historicpartie> {
                                                 Text("Ce nom existe déjà !!")));
                                   } else {
                                     Navigator.of(context).pop();
+                                    partieCourante = nom;
+                                    setState(() {
+
+                                    });
                                     addJoueur('', nom, [], [], [0], []);
                                     addJoueur('', nom, [], [], [0], []);
                                     addJoueur('', nom, [], [], [0], []);
                                     addJoueur('', nom, [], [], [0], []);
-                                    partie = nom;
+
                                     currentIndex = 0;
                                     callback();
                                   }
@@ -213,15 +200,111 @@ class _HistoricpartieState extends State<Historicpartie> {
     );
   }
 
+  AlertDialog SupPartieDialog(l,
+      int index, List<String> nomParties, BuildContext context) {
+    return AlertDialog(
+      content: SizedBox(
+        height: 100,
+        child: Column(
+          children: [
+            TextButton.icon(
+                onPressed: () {
+                  supprimePartie(index, l, nomParties);
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.delete_rounded),
+                label: const Text("supprimer")),
+            TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                            title: const Text(
+                              "Les scores vont être remis à zéro",
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                            content: SizedBox(
+                              height: 30,
+                              child: Row(
+                                children: [
+                                  TextButton(
+                                      onPressed: () {
+                                        scoreZero(index, l, nomParties);
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text("valider")),
+                                  Expanded(child: Container()),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text("Annuler")),
+                                ],
+                              ),
+                            ),
+                          ));
+                },
+                label: const Text("Score à 0"),
+                icon: const Icon(Icons.refresh_rounded))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget CardPartie(List<Joueur> l) {
+    l = ranger(l);
+    return ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: l.length,
+        itemBuilder: (context, indice) {
+          return Padding(
+            padding: const EdgeInsets.only(
+              left: 12,
+              bottom: 10,
+              right: 10,
+            ),
+            child: Row(
+              children: [
+                Flexible(
+                    flex: 3,
+                    fit: FlexFit.loose,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(),
+                      child: Text(
+                        l[indice].nom,
+                        maxLines: 1,
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    )),
+                const Padding(padding: EdgeInsets.all(10)),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    "${l[indice].sommeScore()}",
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   void supprimePartie(int index, List<Joueur> l, List<String> nomParties) {
     if (nomParties.length > 1) {
       String nomTemp = nomParties[index];
 
       //trouver une autre partie
       if (index == 0) {
-        partie = nomParties[index + 1];
+        partieCourante = nomParties[index + 1];
       } else {
-        partie = nomParties[index - 1];
+        partieCourante = nomParties[index - 1];
       }
       callback();
 
@@ -246,43 +329,6 @@ class _HistoricpartieState extends State<Historicpartie> {
         ),
       )));
     }
-  }
-
-  Widget CardPartie(List<Joueur> l) {
-    return ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: l.length,
-        itemBuilder: (context, indice) {
-          return Padding(
-            padding: const EdgeInsets.only(
-              left: 12,
-              bottom: 10,
-              right: 10,
-            ),
-            child: Row(
-              children: [
-                Flexible(
-                  flex: 3,
-                  fit: FlexFit.loose,
-                  child: Text(
-                    l[indice].nom,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-                const Padding(padding: EdgeInsets.all(10)),
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    "${l[indice].sommeScore()}",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
   }
 
   void scoreZero(int index, List<Joueur> l, List<String> nomParties) {

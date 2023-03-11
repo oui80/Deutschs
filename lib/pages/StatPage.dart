@@ -1,95 +1,139 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import '../boxes.dart';
+import '../main.dart';
 import '../model/Joueur.dart';
+import 'addJoueurPage.dart';
 
-Widget statisticsPage(List<Joueur> l) {
-  if (l[0].scores.isEmpty) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Statistiques'),
-        ),
-        body: const Center(
-          child: Text("Aucun score"),
-        ));
-  } else {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Statistiques'),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              children: [
-                Card(
-                  elevation: 4,
-                  child: Container(
-                    height: 230,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10))),
-                    child: SfCartesianChart(
-                        primaryXAxis: NumericAxis(),
-                        title: ChartTitle(text: "Evolution des scores"),
-                        legend: Legend(
-                            position: LegendPosition.bottom,
-                            overflowMode: LegendItemOverflowMode.wrap,
-                            width: '100%',
-                            height: '35%',
-                            isVisible: true),
-                        series: lineSeriesBuilder(l)),
-                  ),
+//ranger liste par postion
+List<Joueur> ranger(List<Joueur> l) {
+  List<Joueur> res = [];
+  for (int j = 0; j < l.length; j++) {
+    int i = 0;
+    while (l[i].position.last != j) {
+      i++;
+    }
+    res = res + [l[i]];
+  }
+  return res;
+}
+
+class statisticsPage extends StatelessWidget {
+  statisticsPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Box<Joueur>>(
+        valueListenable: Boxes.getparties().listenable(),
+        builder: (context, box, _) {
+          List<Joueur> listeJoueur = box.values.toList().cast<Joueur>();
+
+          printlog(listeJoueur.toString());
+
+          if (listeJoueur.isEmpty) {
+            addJoueur('', partieCourante, [], [], [0], []);
+            addJoueur('', partieCourante, [], [], [0], []);
+            addJoueur('', partieCourante, [], [], [0], []);
+            addJoueur('', partieCourante, [], [], [0], []);
+          }
+          //on prend uniquement les joueurs qui sont de la partie selectionnée
+          List<Joueur> listeCourante = [];
+          for (int i = 0; i < listeJoueur.length; i++) {
+            if (listeJoueur[i].partie == partieCourante) {
+              listeCourante = listeCourante + [listeJoueur[i]];
+            }
+          }
+          if (listeCourante[0].scores.isEmpty) {
+            return Scaffold(
+                appBar: AppBar(
+                  title: const Text('Statistiques'),
                 ),
-                const Padding(padding: EdgeInsets.all(20)),
-                SfCircularChart(
-                    title: ChartTitle(text: "Pourcentage du score total"),
-                    legend: Legend(
-                        width: '25%',
-                        isVisible: true
-                    ),
-                    series: <CircularSeries>[
-                      PieSeries<PieData, String>(
-                          dataSource: listePieData(l),
-                          xValueMapper: (PieData data, _) => data.nom,
-                          yValueMapper: (PieData data, _) => data.somme,
-                          radius: '90%',
-                          dataLabelSettings:
-                              const DataLabelSettings(isVisible: true))
-                    ]),
-                const Padding(padding: EdgeInsets.all(20)),
-                ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: l.length,
-                    itemBuilder: (context, index) {
-                      final j = l[index];
-                      bool estNomme = true;
-                      for(int i = 0; i<l.length;i++){
-                        if(l[i].nom == ''){
-                          estNomme = false;
-                          break;
-                        }
-                      }
-                      if (estNomme) {
-                        return TuileFinal(j, l);
-                      }else{
-                        return const Text("Les Joueurs n'ont pas de noms");
-                      }
-
-                    }),
-              ],
-            ),
-          ),
-        ));
+                body: const Center(
+                  child: Text("Aucun score"),
+                ));
+          } else {
+            return Construire(listeCourante);
+          }
+        });
   }
 }
 
-Widget TuileFinal(Joueur j, List<Joueur> l) {
+Scaffold Construire(List<Joueur> l) {
+  l = ranger(l);
+  return Scaffold(
+      appBar: AppBar(
+        title: const Text('Statistiques'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            children: [
+              Card(
+                elevation: 4,
+                child: Container(
+                  height: 230,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.transparent,
+                      ),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
+                  child: SfCartesianChart(
+                      primaryXAxis: NumericAxis(),
+                      title: ChartTitle(text: "Evolution des scores"),
+                      legend: Legend(
+                          position: LegendPosition.bottom,
+                          overflowMode: LegendItemOverflowMode.wrap,
+                          width: '100%',
+                          height: '35%',
+                          isVisible: true),
+                      series: lineSeriesBuilder(l)),
+                ),
+              ),
+              const Padding(padding: EdgeInsets.all(20)),
+              SfCircularChart(
+                  title: ChartTitle(text: "Pourcentage du score total"),
+                  legend: Legend(width: '25%', isVisible: true),
+                  series: <CircularSeries>[
+                    PieSeries<PieData, String>(
+                        dataSource: listePieData(l),
+                        xValueMapper: (PieData data, _) => data.nom,
+                        yValueMapper: (PieData data, _) => data.somme,
+                        radius: '90%',
+                        dataLabelSettings:
+                            const DataLabelSettings(isVisible: true))
+                  ]),
+              const Padding(padding: EdgeInsets.all(20)),
+              ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: l.length,
+                  itemBuilder: (context, index) {
+                    final j = l[index];
+                    bool estNomme = true;
+                    for (int i = 0; i < l.length; i++) {
+                      if (l[i].nom == '') {
+                        estNomme = false;
+                        break;
+                      }
+                    }
+                    if (estNomme) {
+                      return TuileFinal(j, l, context);
+                    } else {
+                      return const Text("Les Joueurs n'ont pas de noms");
+                    }
+                  }),
+            ],
+          ),
+        ),
+      ));
+}
+
+Widget TuileFinal(Joueur j, List<Joueur> l, context) {
   var isVisible = false;
-  if(j.position.last == 0 && j.scores.isNotEmpty){
+  if (j.position.last == 0 && j.scores.isNotEmpty) {
     isVisible = true;
   }
   return SizedBox(
@@ -127,16 +171,14 @@ Widget TuileFinal(Joueur j, List<Joueur> l) {
                       width: 30,
                       height: 25,
                     ),
-                  )
-              ),
+                  )),
               //Nom
               Expanded(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 100
-                  ),
+                  constraints: const BoxConstraints(),
                   child: Text(
                     j.nom,
+                    maxLines: 1,
                     style: const TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -162,26 +204,47 @@ Widget TuileFinal(Joueur j, List<Joueur> l) {
               "Score moyen : ${(j.sommeScore() / j.scores.length).round().toInt()}"),
           Text("Pire score : ${pireScore(j).toString()}"),
           Text(
-              "Nombre de deutsch : ${j.NbDeutschs()}  deutschs gagnés : ${deutschsGagne(j, l)}"),
-          Text("Taux de deutschs : ${j.NbDeutschs() / j.scores.length}"),
-          Text("Position Moyenne : ${positionMoyen(j)}"),
+              "Nombre de dutchs : ${j.NbDeutschs()}  dutchs gagnés : ${deutschsGagne(j, l)}"),
           Text(
-              "Pire ennemie : ${pireEnnemie(j, l)[0]}  a volé ${pireEnnemie(j, l)[1]} deutschs"),
-          Text("Deutschs volés : ${nbDeutschsVole(j, l)}"),
+              "Taux de dutchs : ${(j.NbDeutschs() / j.scores.length * 100).round()} %"),
+          Text("Position Moyenne : ${positionMoyen(j)}"),
+          Row(
+            children: [
+              Expanded(child: Container()),
+              const Text("Pire ennemie : "),
+              ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width - 275,
+                  ),
+                  child: Text(
+                    pireEnnemie(j, l)[0],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )),
+              Text(" a volé ${pireEnnemie(j, l)[1]} dutchs"),
+              Expanded(child: Container()),
+            ],
+          ),
+          Text("Dutchs volés : ${nbDeutschsVole(j, l)}"),
         ],
       ),
     ),
   );
 }
 
-nbDeutschsVole(Joueur joueur, List<Joueur> l){
+nbDeutschsVole(Joueur joueur, List<Joueur> l) {
   //combien de deutsch a t'il vole
   int res = 0;
-  for (int i =0;i<l.length;i++){//on parcourt tous les autres joueurs
-    if(l[i].nom != joueur.nom && joueur.deutschs.isNotEmpty){//si le joueur a deutsch
-      for (int j = 0; j<l[i].deutschs.length;j++){ //pour tous les deutsch d'un joueur
-        if (l[i].deutschs[j]==2){ //si un joueur a perdu son deutsch
-          if(joueur.scores[j] < l[i].scores[j]){ //si le joueur a fait un meilleur score
+  for (int i = 0; i < l.length; i++) {
+    //on parcourt tous les autres joueurs
+    if (l[i].nom != joueur.nom && joueur.deutschs.isNotEmpty) {
+      //si le joueur a deutsch
+      for (int j = 0; j < l[i].deutschs.length; j++) {
+        //pour tous les deutsch d'un joueur
+        if (l[i].deutschs[j] == 2) {
+          //si un joueur a perdu son deutsch
+          if (joueur.deutschs[j] == 3) {
+            //si le joueur a fait un meilleur score
             res++;
           }
         }
@@ -191,7 +254,6 @@ nbDeutschsVole(Joueur joueur, List<Joueur> l){
   return res;
 }
 
-
 pireEnnemie(Joueur joueur, List<Joueur> l) {
   //le pire ennemie est le joueur qui a volé le plus de deutschs
   //On regarde quand le joueur a deutsch
@@ -199,22 +261,32 @@ pireEnnemie(Joueur joueur, List<Joueur> l) {
   //si il n'a pas été le premier, la liste de pire énnemies augmente de 1
 
   Map<String, dynamic> difdeutsch = {
-    for (var a = 0; a < l.length; a++)
+    for (int a = 0; a < l.length; a++)
       if (l[a].nom != joueur.nom) l[a].nom: 0
   };
 
-  //print(ennemies.toString());
   for (int i = 0; i < joueur.deutschs.length; i++) {
-    if (joueur.deutschs[i]==2) {
+    if (joueur.deutschs[i] == 2) {
       for (int j = 0; j < l.length; j++) {
-        if (l[j].nom != joueur.nom){
+        if (l[j].deutschs[i] == 3) {
           difdeutsch[l[j].nom] = difdeutsch[l[j].nom] + 1;
         }
       }
     }
   }
 
-  String res = difdeutsch.keys.first;
+  //on definit le pire ennemie au joueur qui est premier
+  int i = 0;
+  if (joueur.position.last == 0) {
+    while (l[i].position.last != 1) {
+      i++;
+    }
+  } else {
+    while (l[i].position.last != 0) {
+      i++;
+    }
+  }
+  String res = l[i].nom;
 
   int voleMax = 0;
   difdeutsch.forEach((key, value) {
@@ -254,7 +326,7 @@ int deutschsGagne(Joueur joueur, List<Joueur> l) {
   int res = 0;
   //retourne le nombre de deutsch gagnés
   for (int j = 0; j < joueur.scores.length; j++) {
-    if (joueur.deutschs[j]==1) {
+    if (joueur.deutschs[j] == 1) {
       res++;
     }
   }
@@ -279,7 +351,7 @@ List<ChartSeries> lineSeriesBuilder(List<Joueur> l) {
 
 List<ChartData> chartJoueur(Joueur j) {
   List<ChartData> chartJouer = [];
-  for (int i = 0; i < j.scores.length+1; i++) {
+  for (int i = 0; i < j.scores.length + 1; i++) {
     chartJouer = chartJouer + [ChartData(j.scoreJusqua(i), i)];
   }
   return chartJouer;

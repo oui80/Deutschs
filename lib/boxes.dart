@@ -3,5 +3,5 @@ import 'model/Joueur.dart';
 
 class Boxes {
   static Box<Joueur> getparties()=>
-      Hive.box<Joueur>('zdfviuvze');
+      Hive.box<Joueur>('data');
 }
