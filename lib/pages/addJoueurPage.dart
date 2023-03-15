@@ -157,8 +157,6 @@ class _addJoueurPageState extends State<addJoueurPage> {
                                     editJoueur(
                                         l[index], l[index].partie, '', [], [], [0], []);
                                   }
-                                  ;
-                                  callback();
                                   setState(() {});
                                 },
                                 color: Colors.black54,
@@ -181,7 +179,6 @@ class _addJoueurPageState extends State<addJoueurPage> {
                     List<int>.generate(l[0].position.length, (j) => l.length),
                     [255, 63, 245, 255]);
               }
-              callback();
             },
             icon: const Icon(Icons.add_circle_outline_rounded),
             label: const Text('Ajouter joueur'))

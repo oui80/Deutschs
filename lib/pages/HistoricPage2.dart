@@ -1,5 +1,4 @@
 import 'package:Dutch/model/Utilisateur.dart';
-import 'package:Dutch/pages/HistoricPage2.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,22 +11,22 @@ import 'addJoueurPage.dart';
 
 //ranger liste par postion
 List<Joueur> ranger(List<Joueur> l) {
-    l.sort((a, b) => a.position.last.compareTo(b.position.last));;
-    return l;
+  l.sort((a, b) => a.position.last.compareTo(b.position.last));;
+  return l;
 }
 
-class Historicpartie extends StatefulWidget {
+class HistoricPage2 extends StatefulWidget {
 
   final Function callbackFunction;
 
-  Historicpartie({Key? key, required this.callbackFunction})
+  const HistoricPage2({Key? key, required this.callbackFunction})
       : super(key: key);
 
   @override
-  State<Historicpartie> createState() => _HistoricpartieState();
+  State<HistoricPage2> createState() => _HistoricPage2State();
 }
 
-class _HistoricpartieState extends State<Historicpartie> {
+class _HistoricPage2State extends State<HistoricPage2> {
   late Function callback;
 
   @override
@@ -139,51 +138,51 @@ class _HistoricpartieState extends State<Historicpartie> {
               showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                        title: const Text("Nouvelle Partie",
-                            style: TextStyle(fontSize: 20)),
-                        content: SizedBox(
-                          height: 130,
-                          child: Column(
-                            children: [
-                              TextField(
-                                onChanged: (value) {
-                                  nom = value;
-                                },
-                                decoration: InputDecoration(
-                                    border: const OutlineInputBorder(),
-                                    hintText: nom),
-                              ),
-                              Expanded(child: Container()),
-                              TextButton.icon(
-                                onPressed: () {
-                                  if (nomParties.contains(nom)) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content:
-                                                Text("Ce nom existe déjà !!")));
-                                  } else {
-                                    Navigator.of(context).pop();
-                                    partieCourante = nom;
-                                    setState(() {
-
-                                    });
-                                    addJoueur('', nom, [], [], [0], []);
-                                    addJoueur('', nom, [], [], [0], []);
-                                    addJoueur('', nom, [], [], [0], []);
-                                    addJoueur('', nom, [], [], [0], []);
-
-                                    currentIndex = 0;
-                                    callback();
-                                  }
-                                },
-                                label: const Text('valider'),
-                                icon: const Icon(Icons.check_rounded),
-                              )
-                            ],
+                    title: const Text("Nouvelle Partie",
+                        style: TextStyle(fontSize: 20)),
+                    content: SizedBox(
+                      height: 130,
+                      child: Column(
+                        children: [
+                          TextField(
+                            onChanged: (value) {
+                              nom = value;
+                            },
+                            decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                hintText: nom),
                           ),
-                        ),
-                      ));
+                          Expanded(child: Container()),
+                          TextButton.icon(
+                            onPressed: () {
+                              if (nomParties.contains(nom)) {
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                        Text("Ce nom existe déjà !!")));
+                              } else {
+                                Navigator.of(context).pop();
+                                partieCourante = nom;
+                                setState(() {
+
+                                });
+                                addJoueur('', nom, [], [], [0], []);
+                                addJoueur('', nom, [], [], [0], []);
+                                addJoueur('', nom, [], [], [0], []);
+                                addJoueur('', nom, [], [], [0], []);
+
+                                currentIndex = 0;
+                                callback();
+                              }
+                            },
+                            label: const Text('valider'),
+                            icon: const Icon(Icons.check_rounded),
+                          )
+                        ],
+                      ),
+                    ),
+                  ));
             },
             label: const Text('Nouvelle partie'),
             icon: const Icon(Icons.add_circle_outline_rounded),
@@ -192,8 +191,11 @@ class _HistoricpartieState extends State<Historicpartie> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showDialog(context: context, builder: (context) => HistoricPage2(callbackFunction: callback,));
+          getliste(listeJoueur);
+          setState(() {
+          });
         },
+        child: const Icon(Icons.download_rounded),
       ),
     );
   }
@@ -218,32 +220,32 @@ class _HistoricpartieState extends State<Historicpartie> {
                   showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                            title: const Text(
-                              "Les scores vont être remis à zéro",
-                              style: TextStyle(
-                                fontSize: 15,
-                              ),
-                            ),
-                            content: SizedBox(
-                              height: 30,
-                              child: Row(
-                                children: [
-                                  TextButton(
-                                      onPressed: () {
-                                        scoreZero(index, l, nomParties);
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text("valider")),
-                                  Expanded(child: Container()),
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text("Annuler")),
-                                ],
-                              ),
-                            ),
-                          ));
+                        title: const Text(
+                          "Les scores vont être remis à zéro",
+                          style: TextStyle(
+                            fontSize: 15,
+                          ),
+                        ),
+                        content: SizedBox(
+                          height: 30,
+                          child: Row(
+                            children: [
+                              TextButton(
+                                  onPressed: () {
+                                    scoreZero(index, l, nomParties);
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("valider")),
+                              Expanded(child: Container()),
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("Annuler")),
+                            ],
+                          ),
+                        ),
+                      ));
                 },
                 label: const Text("Score à 0"),
                 icon: const Icon(Icons.refresh_rounded))
@@ -315,16 +317,16 @@ class _HistoricpartieState extends State<Historicpartie> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: SizedBox(
-        height: 30,
-        child: TextButton.icon(
-          onPressed: () {
-            currentIndex = 0;
-            callback();
-          },
-          label: const Text("Modifier la partie courante"),
-          icon: const Icon(Icons.edit_rounded),
-        ),
-      )));
+            height: 30,
+            child: TextButton.icon(
+              onPressed: () {
+                currentIndex = 0;
+                callback();
+              },
+              label: const Text("Modifier la partie courante"),
+              icon: const Icon(Icons.edit_rounded),
+            ),
+          )));
     }
   }
 
@@ -336,5 +338,29 @@ class _HistoricpartieState extends State<Historicpartie> {
         l[i].deutschs = [];
       }
     }
+  }
+
+  void getliste(List<List<Joueur>> l) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = await auth.currentUser;
+
+    var db = await FirebaseFirestore.instance;
+
+    late Utilisateur ut;
+
+    final docRef = db.collection("users").doc(user?.uid);
+    docRef.get().then(
+          (DocumentSnapshot doc) {
+            final res2 = doc.data() as Map<String, dynamic>;
+            ut = Utilisateur.fromJson(res2);
+            print(ut.toString());
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
+
+
+
+
+
   }
 }

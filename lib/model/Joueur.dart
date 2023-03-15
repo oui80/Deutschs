@@ -62,4 +62,22 @@ class Joueur extends HiveObject{
       'partie' : partie,
     };
   }
+  static List<int> jsontol(json, key) {
+    List<int> res = [];
+
+    for (int i = 0;i<json[key].length;i++){
+      res.add(json[key][i].toInt());
+    }
+    return res;
+  }
+
+  static Joueur fromJson(Map<String, dynamic> json) {
+    return Joueur(
+        json['nom'],
+        json['partie'],
+        jsontol(json, 'scores'),
+        jsontol(json, 'deutschs'),
+        jsontol(json, 'position'),
+        jsontol(json, 'color'));
+  }
 }
