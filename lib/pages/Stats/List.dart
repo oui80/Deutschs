@@ -1,4 +1,7 @@
+import 'package:Dutch/main.dart';
 import 'package:flutter/material.dart';
+import '../../Widgets/neurimrophic.dart';
+import '../../generated/l10n.dart';
 import '../../model/Joueur.dart';
 
 class ListScore extends StatefulWidget {
@@ -21,6 +24,7 @@ class _ListScoreState extends State<ListScore> {
 
   @override
   Widget build(BuildContext context) {
+    bool nomValide = true;
 
     return ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
@@ -28,18 +32,35 @@ class _ListScoreState extends State<ListScore> {
         itemCount: l.length,
         itemBuilder: (context, index) {
           final j = l[index];
-          bool estNomme = true;
-          for (int i = 0; i < l.length; i++) {
-            if (l[i].nom == '') {
-              estNomme = false;
-              break;
+            if (j.nom == '') {
+              return Padding(
+                padding: const EdgeInsets.all(25),
+                child: Row(
+                  children: [
+                    Text(S.of(context).Joueur),
+                    Text((index +1) as String),
+                    Text(S.of(context).pasDeNom),
+                  ],
+                ),
+              );
+            }else{
+              List names = [];
+              for (var element in l) {
+                if (names.contains(element.nom)) {
+                  nomValide = false ;
+                } else {
+                  names.add(element.nom);
+                }
+              }
             }
-          }
-          if (estNomme) {
-            return TuileFinal(j, l, context);
-          } else {
-            return const Text("Les Joueurs n'ont pas de noms");
-          }
+            if(nomValide) {
+              return TuileFinal(j, l, context);
+            }else{
+              return Padding(
+                padding: const EdgeInsets.all(25),
+                child: Text(S.of(context).MemeNom),
+              );
+            }
         });
   }
 
@@ -49,100 +70,228 @@ class _ListScoreState extends State<ListScore> {
       isVisible = true;
     }
 
-      return SizedBox(
-        height: 200,
-        child: Card(
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  //Position final
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                        child: SizedBox(
+    double pdtop = 3.0;
+    double pdleft = 18.0;
+    double taille = 16.7;
+
+      return Padding(
+        padding: const EdgeInsets.only(top: 25,left: 5,right: 5),
+        child: SizedBox(
+          height: 250,
+          child: myContainer(Column(
+              children: [
+                Row(
+                  children: [
+                    //Position final
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: myContainer(
+                        SizedBox(
                           height: 40,
                           width: 40,
                           child: Align(
                             alignment: Alignment.center,
                             child: Text(
                               (j.position.last + 1).toString(),
-                              style: const TextStyle(
+                              style: TextStyle(
+                                color: tan1,
                                 fontSize: 27,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                        )),
-                  ),
-                  Visibility(
-                      visible: isVisible,
-                      child: const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: Image(
-                          image: AssetImage('lib/Assets/crown2.png'),
-                          width: 30,
-                          height: 25,
-                        ),
-                      )),
-                  //Nom
-                  Expanded(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(),
-                      child: Text(
-                        j.nom,
-                        maxLines: 1,
-                        style: const TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
-                  const Text("pt : ",
-                      style: TextStyle(
-                        fontSize: 18,
-                      )),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 14),
-                    child: Text(j.sommeScore().toString(),
-                        style: const TextStyle(
-                          fontSize: 27,
-                          fontWeight: FontWeight.bold,
+                    Visibility(
+                        visible: isVisible,
+                        child: const Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Image(
+                            image: AssetImage('lib/Assets/crown2.png'),
+                            width: 30,
+                            height: 25,
+                          ),
                         )),
-                  ),
-                ],
-              ),
-              Text("Score moyen : ${(j.sommeScore() / j.scores.length).round().toInt()}"),
-              Text("Pire score : ${pireScore(j).toString()}"),
-              Text(
-                  "Nombre de dutchs : ${j.NbDeutschs()}  dutchs gagnés : ${deutschsGagne(j, l)}"),
-              Text(
-                  "Taux de dutchs : ${(j.NbDeutschs() / j.scores.length * 100).round()} %"),
-              Text("Position Moyenne : ${positionMoyen(j)}"),
-              Row(
-                children: [
-                  Expanded(child: Container()),
-                  const Text("Pire ennemie : "),
-                  ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width - 275,
+                    //Nom
+                    Expanded(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(),
+                        child: Text(
+                          j.nom,
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: mygrey,
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      child: Text(
-                        pireEnnemie(j, l)[0],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      )),
-                  Text(" a volé ${pireEnnemie(j, l)[1]} dutchs"),
-                  Expanded(child: Container()),
-                ],
-              ),
-              Text("Dutchs volés : ${nbDeutschsVole(j, l)}"),
-            ],
+                    ),
+                    Text(S.of(context).points,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: mygrey,
+                        )),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 14),
+                      child: Text(j.sommeScore().toString(),
+                          style: TextStyle(
+                            color: tan1,
+                            fontSize: 27,
+                            fontWeight: FontWeight.bold,
+                          )),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(S.of(context).ScoreMoyen,style: TextStyle(
+                        color: mygrey,
+                        fontSize: taille,
+                      ),),
+                      Text("${(j.sommeScore() / j.scores.length).round().toInt()}", style: TextStyle(
+                          color: tan1,
+                        fontSize: taille,
+                      ),),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(S.of(context).PositionMoyenne,style: TextStyle(
+                        color: mygrey,
+                        fontSize: taille,
+                      ),),
+                      Text("${positionMoyen(j)}",style: TextStyle(
+                        color: tan1,
+                        fontSize: taille,
+                      ),),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(S.of(context).PireScore,style: TextStyle(
+                          color: mygrey,
+                        fontSize: taille,
+                      ),),
+                      Text("${pireScore(j).toString()}",style: TextStyle(
+                          color: tan1,
+                        fontSize: taille,
+                      ),),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(
+                         S.of(context).NombreDutchs,style: TextStyle(
+                        color: mygrey,
+                        fontSize: taille,
+                      ),),
+                      Text(
+                          "${j.NbDeutschs()}/${NbdeutschTot(l)} ",style: TextStyle(
+                        color: tan1,
+                        fontSize: taille,
+                      ),),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(
+                          S.of(context).DutchsGagnes,style: TextStyle(
+                        color: mygrey,
+                        fontSize: taille,
+                      ),),Text(
+                          "${deutschsGagne(j, l)}/${j.NbDeutschs()}",style: TextStyle(
+                        color: tan1,
+                        fontSize: taille,
+                      ),),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(
+                          S.of(context).TauxDutchs, style: TextStyle(
+                        color: mygrey,
+                        fontSize: taille,
+                      ),),
+                      Text(
+                          "${(j.NbDeutschs() / j.scores.length * 100).round()} %", style: TextStyle(
+                        color: tan1,
+                        fontSize: taille,
+                      ),),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(S.of(context).DutchsVoles,style: TextStyle(color: mygrey,
+                        fontSize: taille,),),
+                      Text("${nbDeutschsVole(j, l)}",style: TextStyle(color: tan1,
+                        fontSize: taille,),),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: pdtop, left: pdleft),
+                  child: Row(
+                    children: [
+                      Text(S.of(context).PireEnnemi,style: TextStyle(color: mygrey,
+                        fontSize: taille,),),
+                      ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width - 305,
+                          ),
+                          child: Text(
+                            pireEnnemie(j, l)[0],
+                            style: TextStyle(color:tan1,
+                              fontSize: taille,),
+                            maxLines: 1,
+                          )),
+                      Text(S.of(context).aVole,style: TextStyle(color: mygrey,
+                        fontSize: taille,),),
+                      Text("${pireEnnemie(j, l)[1]}",style: TextStyle(color: tan1,
+                        fontSize: taille,),),
+                      Text(S.of(context).dutchs,style: TextStyle(color: mygrey,
+                        fontSize: taille,),),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
     }
+
+  int NbdeutschTot(List<Joueur> l) {
+    int res = 0;
+    l.forEach((element) { element.deutschs.forEach((d) {
+      if(d == 1 || d==2){
+        res++;
+      }
+    });
+    });
+    return res;
+  }
   }
 
   nbDeutschsVole(Joueur joueur, List<Joueur> l) {

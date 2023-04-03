@@ -1,5 +1,10 @@
+import 'package:Dutch/Widgets/neurimrophic.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
+import '../../../main.dart';
 
 class MyTextField extends StatelessWidget {
   final controller;
@@ -17,24 +22,32 @@ class MyTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (email) =>
-        email != null && !EmailValidator.validate(email)
-            ? 'Enter a valid email' : null,
-        decoration: InputDecoration(
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.shade400),
-            ),
-            fillColor: Colors.grey.shade200,
-            filled: true,
-            hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey[500])),
+      child: myContainer(
+         TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[^$]*$'))],
+          validator: (email) =>
+          email != null && !EmailValidator.validate(email)
+              ? 'Enter a valid email' : null,
+           decoration: InputDecoration(
+               enabledBorder:
+               OutlineInputBorder(
+                 borderSide: BorderSide(
+                     color: myWhite),
+               ),
+               focusedBorder:
+               OutlineInputBorder(
+                 borderSide: BorderSide(
+                     color: myWhite),
+               ),
+               fillColor: myWhite,
+               filled: true,
+               hintText: hintText,
+               hintStyle:
+               TextStyle(color: mygrey1)),
+        ),
       ),
     );
   }

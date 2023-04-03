@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../../Widgets/neurimrophic.dart';
+import '../../../main.dart';
 
 class MyTextFieldMDP extends StatelessWidget {
   final controller;
@@ -16,24 +20,32 @@ class MyTextFieldMDP extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (value) =>
-        value != null && value.length < 6
-            ? 'Mot de passe de 6 characters min.' : null,
-        decoration: InputDecoration(
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.shade400),
-            ),
-            fillColor: Colors.grey.shade200,
-            filled: true,
-            hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey[500])),
+      child: myContainer(
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[^$]*$'))],
+          validator: (value) =>
+          value != null && value.length < 6
+              ? 'Mot de passe de 6 characters min.' : null,
+          decoration: InputDecoration(
+              enabledBorder:
+              OutlineInputBorder(
+                borderSide: BorderSide(
+                    color: myWhite),
+              ),
+              focusedBorder:
+              OutlineInputBorder(
+                borderSide: BorderSide(
+                    color: myWhite),
+              ),
+              fillColor: myWhite,
+              filled: true,
+              hintText: hintText,
+              hintStyle:
+              TextStyle(color: mygrey1)),
+        ),
       ),
     );
   }

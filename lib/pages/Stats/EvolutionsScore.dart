@@ -1,23 +1,26 @@
+import 'package:Dutch/Widgets/neurimrophic.dart';
+import 'package:Dutch/main.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../generated/l10n.dart';
 import '../../model/Joueur.dart';
 
-Widget Evolution(List<Joueur> l) =>
-    Card(
-      elevation: 4,
-      child: Container(
+Widget Evolution(List<Joueur> l,BuildContext context) => myContainer(
+      Container(
         height: 230,
         decoration: BoxDecoration(
             border: Border.all(
               color: Colors.transparent,
             ),
-            borderRadius:
-            const BorderRadius.all(Radius.circular(10))),
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: SfCartesianChart(
             primaryXAxis: NumericAxis(),
-            title: ChartTitle(text: "Evolution des scores"),
+            title: ChartTitle(text: S.of(context).EvolutionScores,textStyle: TextStyle(
+              color: tan2
+            )),
             legend: Legend(
+
                 position: LegendPosition.bottom,
                 overflowMode: LegendItemOverflowMode.wrap,
                 width: '100%',

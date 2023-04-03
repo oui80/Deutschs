@@ -1,10 +1,14 @@
+import 'package:Dutch/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../generated/l10n.dart';
 import '../../model/Joueur.dart';
 
-Widget Pie(List<Joueur> l) => SfCircularChart(
-    title: ChartTitle(text: "Pourcentage du score total"),
+Widget Pie(List<Joueur> l,BuildContext context) => SfCircularChart(
+    title: ChartTitle(text: S.of(context).Pourcentage,textStyle: TextStyle(
+      color:tan2
+    )),
     legend: Legend(width: '25%', isVisible: true),
     series: <CircularSeries>[
       PieSeries<PieData, String>(

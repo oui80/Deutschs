@@ -5,18 +5,16 @@ class Utilisateur {
   late String id;
   late String pseudo;
   late String login;
-  late String mdp;
   late DateTime dateNais;
   late DateTime dateCreation;
   late List<Joueur> parties;
   late int clickpub;
   late bool AvalideCondition;
 
-  Utilisateur (id,pseudo,login,mdp,dateNais,parties,clickpub,Avalide) {
+  Utilisateur (id,pseudo,login,dateNais,List<Joueur> parties,clickpub,Avalide) {
     this.id = id;
     this.pseudo = pseudo;
     this.login = login;
-    this.mdp = mdp;
     this.dateNais = dateNais;
     this.dateCreation = DateTime.now();
     this.parties = parties;
@@ -34,7 +32,6 @@ class Utilisateur {
       'id': id,
       'pseudo': pseudo,
       'login': login,
-      'mdp': mdp,
       'date naissance': dateNais,
       'dateCreation': dateCreation,
       'parties': res,
@@ -57,7 +54,6 @@ class Utilisateur {
         json['id'],
         json['pseudo'],
         json['login'],
-        json['mdp'],
         (json['date naissance'] as Timestamp).toDate() ,
         jsontoList(json['parties']),
         json['clickpub'],
